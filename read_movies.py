@@ -52,6 +52,12 @@ def print_all_movies():
     for movie in items:
         print_movie(movie)
 
+def get_movie_by_title(movie):
+    tite_input = input("What is the movie title you would like to search for: ")
+    title = movie.get(tite_input, "Unknown Title")
+
+    print(f"  Title : {title}")
+
 
 def main():
     print("===== Reading from DynamoDB =====\n")
