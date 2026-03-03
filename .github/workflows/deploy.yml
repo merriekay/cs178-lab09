@@ -1,0 +1,28 @@
+# .github/workflows/deploy.yml
+# This workflow runs every time code is pushed to main.
+# It SSHes into the EC2 instance and runs git pull to deploy the latest code.
+
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main   # Only trigger on pushes to main, not feature branches
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest   # GitHub spins up a temporary Linux machine to run these steps
+
+    steps:
+      # Step 1: Write the private SSH key to a temp file so we can use it
+      - name: Set up SSH key
+        run: |
+         mkdir -p ~/.ssh
+         printf '%s\n' "${{ secrets.ec2_private_key }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ec2-18-215-161-164.compute-1.amazonaws.com >> ~/.ssh/known_hosts
+      # Step 2: SSH into EC2 and pull the latest code from main
+      - name: Deploy via SSH
+        run: |
+          ssh -i ~/.ssh/deploy_key ec2-user@ec2-18-215-161-164.compute-1.amazonaws.com \
+            "cd ~/cs178-lab09 && git pull origin main"
